@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rutas de Transporte</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1976d2, #1565c0);
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-tab.active {
+            background: #1976d2;
+            color: white;
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: #f0f0f0;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .bus-marker {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            cursor: pointer;
+        }
+
+        .bus-icon {
+            width: 50px;
+            height: 50px;
+            background: #ff5722;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .bus-info {
+            flex: 1;
+        }
+
+        .bus-info h3 {
+            margin-bottom: 5px;
+            color: #1976d2;
+        }
+
+        .bus-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4caf50;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.high {
+            background: #ff5722;
+        }
+
+        .route-card {
+            border-left: 4px solid #1976d2;
+        }
+
+        .route-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .route-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .route-stops {
+            margin-top: 15px;
+        }
+
+        .route-stop {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-left: 2px solid #e0e0e0;
+            padding-left: 20px;
+            margin-left: 10px;
+        }
+
+        .route-stop:first-child {
+            border-left: none;
+            margin-left: 0;
+            padding-left: 0;
+        }
+
+        .stop-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #1976d2;
+        }
+
+        .driver-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .driver-avatar {
+            width: 60px;
+            height: 60px;
+            background: #1976d2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .driver-info {
+            flex: 1;
+        }
+
+        .driver-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .driver-details {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .phone-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.3s ease;
+        }
+
+        .phone-btn:hover {
+            background: #45a049;
+        }
+
+        .map-placeholder {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-radius: 12px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+            color: #1976d2;
+            font-size: 18px;
+        }
+
+        .location-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            cursor: pointer;
+            font-size: 18px;
+            color: #1976d2;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .detail-icon {
+            width: 24px;
+            color: #1976d2;
+        }
+
+        .real-time-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 0.5rem;
+            }
+            
+            .nav-tab {
+                font-size: 12px;
+                padding: 10px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-bus"></i>
+                Rutas de Transporte
+                <span class="real-time-indicator"></span>
+            </h1>
+        </div>
+
+        <div class="content">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('map')">
+                    <i class="fas fa-map"></i>
+                    <span>Mapa</span>
+                </button>
+                <button class="nav-tab" onclick="showTab('routes')">
+                    <i class="fas fa-route"></i>
+                    <span>Rutas</span>
+                </button>
+                <button class="nav-tab" onclick="showTab('drivers')">
+                    <i class="fas fa-users"></i>
+                    <span>Choferes</span>
+                </button>
+            </div>
+
+            <div id="map-tab" class="tab-content active">
+                <div class="map-placeholder">
+                    <i class="fas fa-map-marked-alt" style="font-size: 48px;"></i>
+                    <p>Mapa en Tiempo Real</p>
+                    <small>Mostrando ubicación de autobuses activos</small>
+                    <button class="location-btn" onclick="centerMap()">
+                        <i class="fas fa-crosshairs"></i>
+                    </button>
+                </div>
+
+                <div id="buses-list">
+                    <!-- Los autobuses se cargarán aquí -->
+                </div>
+            </div>
+
+            <div id="routes-tab" class="tab-content">
+                <div id="routes-list">
+                    <!-- Las rutas se cargarán aquí -->
+                </div>
+            </div>
+
+            <div id="drivers-tab" class="tab-content">
+                <div id="drivers-list">
+                    <!-- Los choferes se cargarán aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para detalles del autobús -->
+    <div id="bus-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-route-name">Ruta del Autobús</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="detail-row">
+                <i class="fas fa-users detail-icon"></i>
+                <span id="modal-passengers">Pasajeros: 0/40</span>
+            </div>
+            <div class="detail-row">
+                <i class="fas fa-map-marker-alt detail-icon"></i>
+                <span id="modal-distance">Distancia: 0.0 km</span>
+            </div>
+            <div class="detail-row">
+                <i class="fas fa-clock detail-icon"></i>
+                <span id="modal-eta">Tiempo estimado: 0 min</span>
+            </div>
+            <div style="margin-top: 20px;">
+                <div class="progress-bar">
+                    <div id="modal-progress" class="progress-fill" style="width: 0%"></div>
+                </div>
+                <p id="modal-occupancy" style="margin-top: 8px; font-weight: bold;">Ocupación: 0%</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos simulados
+        const buses = [
+            {
+                id: '001',
+                route: 'Ruta 1 - Centro',
+                lat: 22.7709,
+                lng: -102.5833,
+                passengers: 12,
+                capacity: 40,
+                driver: 'Juan Pérez'
+            },
+            {
+                id: '002',
+                route: 'Ruta 2 - Norte',
+                lat: 22.7759,
+                lng: -102.5883,
+                passengers: 8,
+                capacity: 40,
+                driver: 'María González'
+            },
+            {
+                id: '003',
+                route: 'Ruta 3 - Sur',
+                lat: 22.7659,
+                lng: -102.5783,
+                passengers: 25,
+                capacity: 40,
+                driver: 'Carlos Rodríguez'
+            }
+        ];
+
+        const routes = [
+            {
+                id: '1',
+                name: 'Ruta 1 - Centro',
+                color: '#f44336',
+                stops: ['Plaza Principal', 'Mercado', 'Hospital', 'Universidad'],
+                activeTime: '5:00 AM - 10:00 PM',
+                frequency: '15 min'
+            },
+            {
+                id: '2',
+                name: 'Ruta 2 - Norte',
+                color: '#2196f3',
+                stops: ['Terminal Norte', 'Colonia Norte', 'Centro Comercial', 'Parque'],
+                activeTime: '6:00 AM - 9:00 PM',
+                frequency: '20 min'
+            },
+            {
+                id: '3',
+                name: 'Ruta 3 - Sur',
+                color: '#4caf50',
+                stops: ['Zona Industrial', 'Fraccionamiento Sur', 'Centro', 'Terminal'],
+                activeTime: '5:30 AM - 9:30 PM',
+                frequency: '18 min'
+            }
+        ];
+
+        const drivers = [
+            {
+                id: '1',
+                name: 'Juan Pérez',
+                phone: '+52 493 121 0405',
+                route: 'Ruta 1 - Centro',
+                rating: 4.8,
+                busNumber: '001'
+            },
+            {
+                id: '2',
+                name: 'María González',
+                phone: '+52 1 493 102 4643',
+                route: 'Ruta 2 - Norte',
+                rating: 4.9,
+                busNumber: '002'
+            },
+            {
+                id: '3',
+                name: 'Carlos Rodríguez',
+                phone: '+52 1 493 150 1327',
+                route: 'Ruta 3 - Sur',
+                rating: 4.7,
+                busNumber: '003'
+            }
+        ];
+
+        let currentLocation = { lat: 22.7709, lng: -102.5833 };
+
+        // Funciones principales
+        function showTab(tabName) {
+            // Ocultar todas las pestañas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Mostrar pestaña seleccionada
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.closest('.nav-tab').classList.add('active');
+
+            // Cargar contenido según la pestaña
+            switch(tabName) {
+                case 'map':
+                    loadBuses();
+                    break;
+                case 'routes':
+                    loadRoutes();
+                    break;
+                case 'drivers':
+                    loadDrivers();
+                    break;
+            }
+        }
+
+        function loadBuses() {
+            const busesList = document.getElementById('buses-list');
+            busesList.innerHTML = '';
+
+            buses.forEach(bus => {
+                const distance = calculateDistance(currentLocation, {lat: bus.lat, lng: bus.lng});
+                const eta = Math.round(distance * 3);
+                const occupancyPercent = Math.round((bus.passengers / bus.capacity) * 100);
+
+                const busCard = document.createElement('div');
+                busCard.className = 'card';
+                busCard.innerHTML = `
+                    <div class="bus-marker" onclick="showBusDetails('${bus.id}')">
+                        <div class="bus-icon">
+                            <i class="fas fa-bus"></i>
+                        </div>
+                        <div class="bus-info">
+                            <h3>${bus.route}</h3>
+                            <p>Pasajeros: ${bus.passengers}/${bus.capacity}</p>
+                            <p>Distancia: ${distance.toFixed(1)} km • ETA: ${eta} min</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill ${occupancyPercent > 80 ? 'high' : ''}" 
+                                     style="width: ${occupancyPercent}%"></div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: #ccc;"></i>
+                    </div>
+                `;
+                busesList.appendChild(busCard);
+            });
+        }
+
+        function loadRoutes() {
+            const routesList = document.getElementById('routes-list');
+            routesList.innerHTML = '';
+
+            routes.forEach(route => {
+                const routeCard = document.createElement('div');
+                routeCard.className = 'card route-card';
+                routeCard.style.borderLeftColor = route.color;
+                routeCard.innerHTML = `
+                    <div class="route-header">
+                        <div class="route-color" style="background-color: ${route.color}"></div>
+                        <h3>${route.name}</h3>
+                    </div>
+                    <p><strong>Horario:</strong> ${route.activeTime}</p>
+                    <p><strong>Frecuencia:</strong> ${route.frequency}</p>
+                    <div class="route-stops">
+                        <h4>Paradas:</h4>
+                        ${route.stops.map(stop => `
+                            <div class="route-stop">
+                                <div class="stop-dot"></div>
+                                <span>${stop}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                routesList.appendChild(routeCard);
+            });
+        }
+
+        function loadDrivers() {
+            const driversList = document.getElementById('drivers-list');
+            driversList.innerHTML = '';
+
+            drivers.forEach(driver => {
+                const initials = driver.name.split(' ').map(n => n[0]).join('');
+                const driverCard = document.createElement('div');
+                driverCard.className = 'card';
+                driverCard.innerHTML = `
+                    <div class="driver-card">
+                        <div class="driver-avatar">${initials}</div>
+                        <div class="driver-info">
+                            <div class="driver-name">${driver.name}</div>
+                            <div class="driver-details">
+                                <p>${driver.route}</p>
+                                <p>Autobús: ${driver.busNumber}</p>
+                                <div class="rating">
+                                    <i class="fas fa-star" style="color: #ffc107;"></i>
+                                    <span>${driver.rating}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="phone-btn" onclick="callDriver('${driver.phone}')">
+                            <i class="fas fa-phone"></i>
+                        </button>
+                    </div>
+                `;
+                driversList.appendChild(driverCard);
+            });
+        }
+
+        function showBusDetails(busId) {
+            const bus = buses.find(b => b.id === busId);
+            if (!bus) return;
+
+            const distance = calculateDistance(currentLocation, {lat: bus.lat, lng: bus.lng});
+            const eta = Math.round(distance * 3);
+            const occupancyPercent = Math.round((bus.passengers / bus.capacity) * 100);
+
+            document.getElementById('modal-route-name').textContent = bus.route;
+            document.getElementById('modal-passengers').textContent = `Pasajeros: ${bus.passengers}/${bus.capacity}`;
+            document.getElementById('modal-distance').textContent = `Distancia: ${distance.toFixed(1)} km`;
+            document.getElementById('modal-eta').textContent = `Tiempo estimado: ${eta} min`;
+            document.getElementById('modal-progress').style.width = `${occupancyPercent}%`;
+            document.getElementById('modal-progress').className = `progress-fill ${occupancyPercent > 80 ? 'high' : ''}`;
+            document.getElementById('modal-occupancy').textContent = `Ocupación: ${occupancyPercent}%`;
+
+            document.getElementById('bus-modal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('bus-modal').style.display = 'none';
+        }
+
+        function centerMap() {
+            // Simular centrar el mapa en la ubicación actual
+            alert('Mapa centrado en tu ubicación actual');
+        }
+
+        function callDriver(phone) {
+            window.open(`tel:${phone}`, '_self');
+        }
+
+        function calculateDistance(pos1, pos2) {
+            const R = 6371; // Radio de la Tierra en km
+            const dLat = (pos2.lat - pos1.lat) * Math.PI / 180;
+            const dLon = (pos2.lng - pos1.lng) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(pos1.lat * Math.PI / 180) * Math.cos(pos2.lat * Math.PI / 180) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // Simulación de actualizaciones en tiempo real
+        function updateBusesRealTime() {
+            buses.forEach(bus => {
+                // Simular movimiento
+                bus.lat += (Math.random() - 0.5) * 0.001;
+                bus.lng += (Math.random() - 0.5) * 0.001;
+                bus.passengers = Math.floor(Math.random() * 40);
+            });
+            
+            // Actualizar solo si la pestaña del mapa está activa
+            if (document.getElementById('map-tab').classList.contains('active')) {
+                loadBuses();
+            }
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('bus-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBuses();
+            // Actualizar cada 10 segundos
+            setInterval(updateBusesRealTime, 10000);
+        });
+    </script>
+</body>
+</html>
